@@ -3,19 +3,20 @@ from flask_socketio import SocketIO, emit
 from datetime import datetime
 import base64
 import secrets
+import os
+import eventlet
+eventlet.monkey_patch()
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = secrets.token_hex(16)
-socketio = SocketIO(app, cors_allowed_origins="*")
+socketio = SocketIO(app, cors_allowed_origins="*", async_mode="eventlet")
 
 class MessageStore:
-    """In-memory store for encrypted messages."""
     def __init__(self):
         self.messages = []
         self.max_messages = 50
 
     def add_message(self, encrypted_message: bytes, salt: bytes, sender: str):
-        """Add an encrypted message and broadcast it."""
         if len(self.messages) >= self.max_messages:
             self.messages.pop(0)
         message_data = {
@@ -29,43 +30,40 @@ class MessageStore:
         socketio.emit("new_message", message_data)
 
     def get_messages(self):
-        """Retrieve all messages."""
         return self.messages
 
     def clear_store(self):
-        """Clear all messages."""
         self.messages = []
 
 store = MessageStore()
 
 @app.route("/messages")
 def get_messages():
-    """Retrieve all messages."""
     return jsonify(store.get_messages())
 
 @app.route("/clear")
 def clear_session():
-    """Clear the message store."""
     store.clear_store()
     socketio.emit("clear", {"status": "Session cleared"})
     return jsonify({"status": "Session cleared"})
 
 @socketio.on("connect")
 def handle_connect():
-    """Handle client connection."""
-    emit("new_message", {"sender": "System", "timestamp": datetime.now().isoformat(), "message": "Connected to secure server"})
+    emit("new_message", {
+        "sender": "System",
+        "timestamp": datetime.now().isoformat(),
+        "message": "Connected to secure server"
+    })
 
 @socketio.on("message")
 def handle_message(data):
-    """Handle incoming WebSocket messages."""
     encrypted_message = base64.b64decode(data["encrypted_message"])
     salt = base64.b64decode(data["salt"])
     store.add_message(encrypted_message, salt, data["sender"])
 
 @socketio.on("disconnect")
 def handle_disconnect():
-    """Handle client disconnection."""
     pass
 
 if __name__ == "__main__":
-    socketio.run(app, host="0.0.0.0", port=8000)
+    socketio.run(app, host="0.0.0.0", port=int(os.environ.get("PORT", 8000)))
