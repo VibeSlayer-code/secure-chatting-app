@@ -1,3 +1,5 @@
+#Copyright CMD Softworks
+#API by Vibe
 from gevent import monkey
 monkey.patch_all()
 
@@ -41,7 +43,7 @@ store = MessageStore()
 @app.route("/messages")
 def get_messages():
     return jsonify(store.get_messages())
-
+#clear by mor
 @app.route("/clear")
 def clear_session():
     store.clear_store()
@@ -75,3 +77,4 @@ def add_cors_headers(response):
 
 if __name__ == "__main__":
     socketio.run(app, host="0.0.0.0", port=int(os.environ.get("PORT", 8000)))
+
