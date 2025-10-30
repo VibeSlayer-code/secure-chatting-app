@@ -1,3 +1,5 @@
+//Copyright CMD Softworks
+//Crypto Engine By Mor
 from cryptography.fernet import Fernet
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
@@ -12,7 +14,7 @@ class CryptoManager:
         self.rotate_key()
 
     def rotate_key(self):
-        """Generate a new key and salt for session-based encryption."""
+       
         self.salt = secrets.token_bytes(16)
         kdf = PBKDF2HMAC(
             algorithm=hashes.SHA256(),
@@ -23,13 +25,13 @@ class CryptoManager:
         self.key = base64.urlsafe_b64encode(kdf.derive(self.password.encode()))
 
     def encrypt_message(self, message: str) -> tuple[bytes, bytes]:
-        """Encrypt a message with AES-256."""
+        
         fernet = Fernet(self.key)
         encrypted = fernet.encrypt(message.encode())
         return encrypted, self.salt
 
     def decrypt_message(self, encrypted: bytes, salt: bytes) -> str:
-        """Decrypt a message using the provided salt."""
+        
         try:
             kdf = PBKDF2HMAC(
                 algorithm=hashes.SHA256(),
@@ -41,4 +43,5 @@ class CryptoManager:
             fernet = Fernet(key)
             return fernet.decrypt(encrypted).decode()
         except Exception:
+
             return "[Error: Decryption failed]"
