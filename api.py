@@ -1,11 +1,12 @@
+import eventlet
+eventlet.monkey_patch()
+
 from flask import Flask, jsonify
 from flask_socketio import SocketIO, emit
 from datetime import datetime
 import base64
 import secrets
 import os
-import eventlet
-eventlet.monkey_patch()
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = secrets.token_hex(16)
