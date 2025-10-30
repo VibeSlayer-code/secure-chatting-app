@@ -1,5 +1,5 @@
-import eventlet
-eventlet.monkey_patch()
+from gevent import monkey
+monkey.patch_all()
 
 from flask import Flask, jsonify
 from flask_socketio import SocketIO, emit
@@ -10,7 +10,7 @@ import os
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = secrets.token_hex(16)
-socketio = SocketIO(app, async_mode="eventlet")
+socketio = SocketIO(app, async_mode="gevent")
 
 class MessageStore:
     def __init__(self):
