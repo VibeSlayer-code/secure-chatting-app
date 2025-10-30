@@ -10,7 +10,7 @@ import os
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = secrets.token_hex(16)
-socketio = SocketIO(app, async_mode="gevent")
+socketio = SocketIO(app, async_mode="gevent", cors_allowed_origins="*")
 
 class MessageStore:
     def __init__(self):
@@ -68,3 +68,4 @@ def handle_disconnect():
 
 if __name__ == "__main__":
     socketio.run(app, host="0.0.0.0", port=int(os.environ.get("PORT", 8000)))
+
