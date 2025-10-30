@@ -1,5 +1,5 @@
-//Copyright CMD Softworks
-//Crypto Engine By Mor
+#Copyright CMD Softworks
+#Crypto Engine By Mor
 from cryptography.fernet import Fernet
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
@@ -45,3 +45,4 @@ class CryptoManager:
         except Exception:
 
             return "[Error: Decryption failed]"
+
